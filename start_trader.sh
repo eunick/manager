@@ -23,7 +23,14 @@ tmux new-session  -d -s "$SESSION" -n "MNQ" "bash $BASE_DIR/MNQ/start_bg.sh; exe
 tmux new-window      -t "$SESSION"  -n "MES" "bash $BASE_DIR/MES/start_bg.sh; exec bash"
 tmux new-window      -t "$SESSION"  -n "MCL" "bash $BASE_DIR/MCL/start_bg.sh; exec bash"
 
-tmux select-window -t "$SESSION:MNQ"
+# LOGS window: 3 panes, one tail per trader
+tmux new-window -t "$SESSION" -n "LOGS"
+tmux send-keys  -t "$SESSION:LOGS" "tail -f /mnt/c/Claude_Trader/mnq/trader_agent_MNQ.log" Enter
+tmux split-window -t "$SESSION:LOGS" -h "tail -f /mnt/c/Claude_Trader/mes/trader_agent_MES.log"
+tmux split-window -t "$SESSION:LOGS" -v "tail -f /mnt/c/Claude_Trader/mcl/trader_agent_MCL.log"
+tmux select-layout -t "$SESSION:LOGS" even-horizontal
+
+tmux select-window -t "$SESSION:LOGS"
 tmux attach-session -t "$SESSION"
 
 echo -e "${GRN}All instances launched in tmux session '$SESSION'.${NC}"
